@@ -726,6 +726,7 @@ public:
   void emitStatement(Operation *op, ModuleNameManager &names);
   void emitStatementBlock(Block &block, ModuleNameManager &names);
   void emitBind(BindOp op);
+  void emitBindInterface(BindInterfaceOp op);
 
 public:
   void verifyModuleName(Operation *, StringAttr nameAttr);
@@ -2635,6 +2636,8 @@ void ModuleEmitter::emitHWGeneratedModule(HWModuleGeneratedOp module) {
 }
 
 void ModuleEmitter::emitBind(BindOp bind) { os << "// bind\n\n"; }
+
+void ModuleEmitter::emitBindInterface(BindInterfaceOp bind) { os << "// bind\n\n"; }
 
 // Check if the value is from read of a wire or reg or is a port.
 static bool isSimpleReadOrPort(Value v) {
