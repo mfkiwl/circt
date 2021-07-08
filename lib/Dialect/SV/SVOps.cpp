@@ -1055,6 +1055,49 @@ static LogicalResult verifyBindInterfaceOp(BindInterfaceOp op) {
 }
 
 //===----------------------------------------------------------------------===//
+// InterfaceInstanceOp
+//===----------------------------------------------------------------------===//
+
+static ParseResult parseInterfaceInstanceOp(OpAsmParser &parser,
+                                            NamedAttrList &resultAttrs) {
+  parser.parseOptionalAttrDict(resultAttrs);
+
+  // If the attribute dictionary contains no 'name' attribute, infer it from
+  // the SSA name (if specified).
+  if (resultAttrs.get("name"))
+    return success();
+
+  auto resultName = parser.getResultName(0).first;
+  if (!resultName.empty() && isdigit(resultName[0]))
+    resultName = "";
+  auto nameAttr = parser.getBuilder().getStringAttr(resultName);
+  auto *context = parser.getBuilder().getContext();
+  resultAttrs.push_back({Identifier::get("name", context), nameAttr});
+  return success();
+}
+
+static void printInterfaceInstanceOp(OpAsmPrinter &p, Operation *op,
+                                     DictionaryAttr attr) {
+  // List of attributes to elide when printing the dictionary.
+  SmallVector<StringRef, 1> elides;
+
+  // Note that we only need to print the "name" attribute if the asmprinter
+  // result name disagrees with it.  This can happen in strange cases, e.g.
+  // when there are conflicts.
+  SmallString<32> resultNameStr;
+  llvm::raw_svector_ostream tmpStream(resultNameStr);
+  p.printOperand(op->getResult(0), tmpStream);
+  auto actualName = tmpStream.str().drop_front();
+  auto expectedName = op->getAttrOfType<StringAttr>("name").getValue();
+  // Anonymous names are printed as digits, which is fine.
+  if (actualName == expectedName ||
+      (expectedName.empty() && isdigit(actualName[0])))
+    elides.push_back("name");
+
+  p.printOptionalAttrDict(op->getAttrs(), elides);
+}
+
+//===----------------------------------------------------------------------===//
 // TableGen generated logic.
 //===----------------------------------------------------------------------===//
 

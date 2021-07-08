@@ -721,7 +721,7 @@ void ESIPortsPass::updateInstance(HWModuleExternOp mod, InstanceOp inst) {
     // Build a gasket by instantiating an interface, connecting one end to an
     // `esi.unwrap.iface` and the other end to the instance.
     auto ifaceInst =
-        instBuilder.create<InterfaceInstanceOp>(iface.getInterfaceType());
+        instBuilder.create<InterfaceInstanceOp>(iface.getInterfaceType(), None);
     nameStringBuffer.clear();
     ifaceInst->setAttr(
         "name",
@@ -767,7 +767,7 @@ void ESIPortsPass::updateInstance(HWModuleExternOp mod, InstanceOp inst) {
     // `esi.wrap.iface` and the other end to the instance. Append it to the
     // operand list.
     auto ifaceInst =
-        instBuilder.create<InterfaceInstanceOp>(iface.getInterfaceType());
+        instBuilder.create<InterfaceInstanceOp>(iface.getInterfaceType(), None);
     nameStringBuffer.clear();
     ifaceInst->setAttr(
         "name",
